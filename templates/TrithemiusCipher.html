@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trithemius Cipher</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+      if ($navbarBurgers.length > 0) {
+        $navbarBurgers.forEach( el => {
+          el.addEventListener('click', () => {
+            const target = el.dataset.target;
+            const $target = document.getElementById(target);
+            el.classList.toggle('is-active');
+            $target.classList.toggle('is-active');
+          });
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/">
+        <strong>Trithemius Cipher</strong>
+      </a>
+
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="mainNavbar">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="mainNavbar" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/">Головна</a>
+        <a class="navbar-item" href="/about">Про розробника</a>
+        <a class="navbar-item" href="#" onclick="document.querySelector('form#trit-form input[name=action]').value='exit'; document.querySelector('form#trit-form').submit(); return false;">Вихід</a>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div>Підтримка EN</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="container">
+      <nav class="level" style="margin-top:1rem;">
+        <div class="level-left">
+          <div class="level-item">
+            <div>
+              <h1 class="title is-4">Trithemius Cipher</h1>
+              <br>
+              <p class="subtitle is-6">Позиційний шифр (лінійний / квадратичний / ключ-слово)</p>
+            </div>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <form method="post" style="margin:0;">
+              <input type="hidden" name="action" value="info">
+              <button class="button is-light" type="submit">Про розробника</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+
+      <div class="columns">
+        <div class="column is-two-thirds">
+          <form id="trit-form" method="post" autocomplete="off">
+            <div class="field">
+              <label class="label">Текст</label>
+              <div class="control">
+                <textarea class="textarea" name="text" placeholder="Введіть або вставте текст...">{{ text_value }}</textarea>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Тип ключа</label>
+              <div class="control">
+                <div class="select">
+                  <select name="key_type">
+                    <option value="linear" {% if key_type == "linear" %}selected{% endif %}>Лінійний (a, b)</option>
+                    <option value="quadratic" {% if key_type == "quadratic" %}selected{% endif %}>Квадратичний (a, b, c)</option>
+                    <option value="text" {% if key_type == "text" %}selected{% endif %}>Текстовий (пароль)</option>
+                  </select>
+                </div>
+              </div>
+              <p class="help">Лінійний: введіть два числа через кому, напр. <code>3,1</code>. Квадратичний: три числа, напр. <code>1,2,3</code>. Текстовий: будь-яке слово/фраза.</p>
+            </div>
+
+            <div class="field">
+              <label class="label">Ключ</label>
+              <div class="control">
+                <input class="input" type="text" name="key" value="{{ key_value }}" placeholder="Введіть ключ (наприклад: 3,1 або слово)">
+              </div>
+            </div>
+
+            <div class="field is-grouped" style="margin-top:1rem;">
+              <p class="control">
+                <button class="button is-primary" name="action" value="encrypt" type="submit">Шифрувати</button>
+              </p>
+              <p class="control">
+                <button class="button is-link" name="action" value="decrypt" type="submit">Розшифрувати</button>
+              </p>
+              <p class="control">
+                <button class="button is-light" name="action" value="clear" type="submit">Очистити</button>
+              </p>
+            </div>
+          </form>
+
+          <div class="box" style="margin-top:1rem;">
+            <h3 class="title is-6">Результат</h3>
+            {% if result %}
+              <div class="content"><pre style="white-space:pre-wrap;">{{ result }}</pre></div>
+            {% else %}
+              <p class="has-text-grey">Порожньо</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="column">
+          <div class="box">
+            <h3 class="title is-6">Інформація про ключ</h3>
+            <p class="subtitle is-7 has-text-grey">Пояснення</p>
+            <div class="content">
+              <ul>
+                <li><strong>Лінійний (a, b):</strong> shift = (a * i + b) mod 26</li>
+                <li><strong>Квадратичний (a, b, c):</strong> shift = (a * i^2 + b * i + c) mod 26</li>
+                <li><strong>Текстовий ключ:</strong> символи ключа перетворюються в числа (a = 0..25) та повторюються</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="box has-text-centered">
+            <p class="is-size-7">Розробив: ТВ-21 Цвігун Богдан</p>
+            <p class="is-size-7 has-text-grey">Trithemius — позиційний шифр для англійського алфавіту</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

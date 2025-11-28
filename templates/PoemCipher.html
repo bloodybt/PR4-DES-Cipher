@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Poem Cipher</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+      if ($navbarBurgers.length > 0) {
+        $navbarBurgers.forEach( el => {
+          el.addEventListener('click', () => {
+            const target = el.dataset.target;
+            const $target = document.getElementById(target);
+            el.classList.toggle('is-active');
+            $target.classList.toggle('is-active');
+          });
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/">
+        <strong>Poem Cipher</strong>
+      </a>
+
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="mainNavbar">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="mainNavbar" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/">Головна</a>
+        <a class="navbar-item" href="/about">Про розробника</a>
+        <a class="navbar-item" href="#" onclick="document.querySelector('form input[name=action]').value='exit'; document.querySelector('form').submit(); return false;">Вихід</a>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div>Підтримка EN / UA</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="margin-bottom:1rem;">
+            {% for category, msg in messages %}
+              <div class="notification is-{{ 'danger' if category == 'danger' else 'info' }}">
+                {{ msg }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <nav class="level" style="margin-top:1rem;">
+        <div class="level-left">
+          <div class="level-item">
+            <div>
+              <h1 class="title is-4">Poem Cipher</h1>
+              <br>
+              <p class="subtitle is-6">Шифрування та розшифрування за ключем-«вірш»</p>
+            </div>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <form method="post" style="margin:0;">
+              <input type="hidden" name="action" value="info">
+              <button class="button is-light" type="submit">Про розробника</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+
+      <div class="columns">
+        <div class="column is-two-thirds">
+          <form method="post" autocomplete="off">
+            <div class="field">
+              <label class="label">Текст</label>
+              <div class="control">
+                <textarea class="textarea" name="text" placeholder="Введіть або вставте текст...">{{ formdata.get('text','') }}</textarea>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Ключ (вірш або рядок)</label>
+              <div class="control">
+                <input class="input" type="text" name="poem" placeholder="Введіть вірш або ключ" value="{{ formdata.get('poem','') }}">
+              </div>
+              <p class="help">Ключ має бути текстом — використовується для генерації таблиці шифру.</p>
+            </div>
+
+            <div class="columns is-mobile">
+              <div class="column">
+                <div class="field" style="margin-top:1.4rem;">
+                  <div class="buttons">
+                    <button class="button is-primary" name="action" value="encrypt" type="submit">Шифрувати</button>
+                    <button class="button is-link" name="action" value="decrypt" type="submit">Розшифрувати</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div class="box">
+            <h3 class="title is-6">Результат</h3>
+            {% if result %}
+              <div class="content"><pre style="white-space:pre-wrap;">{{ result }}</pre></div>
+            {% else %}
+              <p class="has-text-grey">Порожньо</p>
+            {% endif %}
+          </div>
+
+          <div class="box">
+            <h3 class="title is-6">Деталі введених даних</h3>
+            <div class="content is-size-7">
+              <p><strong>Ключ (poem):</strong> {{ formdata.get('poem','(не вказано)') }}</p>
+              <p class="has-text-grey">Поле показує останні надіслані значення форми.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="column">
+          <div class="box">
+            <h3 class="title is-6">Як працює ключ</h3>
+            <p class="subtitle is-7 has-text-grey">PoemCipher використовує символи ключа для побудови шифру. Для надійного результату використайте достатньо довгий та змістовний текст (вірш, цитату, фразу).</p>
+            <hr>
+            <h4 class="title is-7">Поради</h4>
+            <ul>
+              <li>Уникайте дуже коротких ключів (1–2 символи).</li>
+              <li>Можна використовувати пробіли та пунктуацію — реалізація видаляє/ігнорує непотрібні символи за потреби.</li>
+              <li>Збережіть ключ — без нього розшифрувати неможливо.</li>
+            </ul>
+          </div>
+
+          <div class="box has-text-centered">
+            <p class="is-size-7">Розробив: ТВ-21 Цвігун Богдан</p>
+            <p class="is-size-7 has-text-grey">Poem Cipher — підтримка EN / UA залежить від реалізації шифру на сервері</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

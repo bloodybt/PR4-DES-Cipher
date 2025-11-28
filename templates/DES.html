@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DES Cipher</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+      if ($navbarBurgers.length > 0) {
+        $navbarBurgers.forEach( el => {
+          el.addEventListener('click', () => {
+            const target = el.dataset.target;
+            const $target = document.getElementById(target);
+            el.classList.toggle('is-active');
+            $target.classList.toggle('is-active');
+          });
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/">
+        <strong>DES Cipher</strong>
+      </a>
+
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="mainNavbar">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="mainNavbar" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/">Головна</a>
+        <a class="navbar-item" href="/about">Про розробника</a>
+        <a class="navbar-item" href="#" onclick="document.querySelector('form input[name=action]').value='exit'; document.querySelector('form').submit(); return false;">Вихід</a>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div>Підтримка EN / UA</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="margin-bottom:1rem;">
+            {% for category, msg in messages %}
+              <div class="notification is-{{ 'danger' if category == 'danger' else 'info' }}">
+                {{ msg }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <nav class="level" style="margin-top:1rem;">
+        <div class="level-left">
+          <div class="level-item">
+            <div>
+              <h1 class="title is-4">DES Cipher</h1>
+              <br>
+              <p class="subtitle is-6">Шифрування/розшифрування з використанням DES (ECB/CBC/CFB/OFB)</p>
+            </div>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <form method="post" style="margin:0;">
+              <input type="hidden" name="action" value="info">
+              <button class="button is-light" type="submit">Про розробника</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+
+      <div class="columns">
+        <div class="column is-two-thirds">
+          <form method="post" autocomplete="off">
+            <div class="field">
+              <label class="label">Текст</label>
+              <div class="control">
+                <textarea class="textarea" name="text" placeholder="Введіть або вставте текст...">{{ formdata.get('text','') }}</textarea>
+              </div>
+              <p class="help">При шифруванні приймається звичайний текст. При розшифруванні — base64 рядок.</p>
+            </div>
+
+            <div class="columns is-mobile">
+              <div class="column is-half">
+                <div class="field">
+                  <label class="label">Ключ (8 символів)</label>
+                  <div class="control">
+                    <input class="input" type="text" name="key" maxlength="8" placeholder="8 символів (ASCII)" value="{{ formdata.get('key','') }}">
+                  </div>
+                  <p class="help">Ключ повинен бути рівно 8 байт.</p>
+                </div>
+              </div>
+
+              <div class="column is-half">
+                <div class="field">
+                  <label class="label">IV (для CBC/CFB/OFB, 8 символів)</label>
+                  <div class="control">
+                    <input class="input" type="text" name="iv" maxlength="8" placeholder="IV (8 символів)" value="{{ formdata.get('iv','') }}">
+                  </div>
+                  <p class="help">Потрібно лише для режимів, відмінних від ECB.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="columns is-mobile">
+              <div class="column is-narrow">
+                <div class="field">
+                  <label class="label is-small">Режим</label>
+                  <div class="control">
+                    <div class="select">
+                      <select name="mode">
+                        <option value="ECB" {% if formdata.get('mode','ECB') == 'ECB' %}selected{% endif %}>ECB</option>
+                        <option value="CBC" {% if formdata.get('mode') == 'CBC' %}selected{% endif %}>CBC</option>
+                        <option value="CFB" {% if formdata.get('mode') == 'CFB' %}selected{% endif %}>CFB</option>
+                        <option value="OFB" {% if formdata.get('mode') == 'OFB' %}selected{% endif %}>OFB</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="column">
+                <div class="field" style="margin-top:1.4rem;">
+                  <div class="buttons">
+                    <button class="button is-primary" name="action" value="encrypt" type="submit">Шифрувати</button>
+                    <button class="button is-link" name="action" value="decrypt" type="submit">Розшифрувати</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <div class="box">
+            <h3 class="title is-6">Результат</h3>
+            {% if result %}
+              <div class="content"><pre style="white-space:pre-wrap;">{{ result }}</pre></div>
+            {% else %}
+              <p class="has-text-grey">Порожньо</p>
+            {% endif %}
+          </div>
+
+          <div class="box">
+            <h3 class="title is-6">Додатково</h3>
+            <p class="is-size-7 has-text-grey">Шифрування повертає base64-рядок (щоб безпечно передавати двійкові дані). При розшифруванні подавайте base64-рядок.</p>
+          </div>
+        </div>
+
+        <div class="column">
+          <div class="box">
+            <h3 class="title is-6">Поради та попередження</h3>
+            <ul>
+              <li>DES застарілий і небезпечний для реального використання — використовуйте AES для продуктивних рішень.</li>
+              <li>Ключ і IV мають бути точно 8 байт (символів ASCII). Переконайтесь, що немає зайвих пробілів.</li>
+              <li>Для CBC/CFB/OFB IV треба генерувати випадково й передавати/зберігати разом із шифротекстом.</li>
+            </ul>
+          </div>
+
+          <div class="box has-text-centered">
+            <p class="is-size-7">Розробив: ТВ-21 Цвігун Богдан</p>
+            <p class="is-size-7 has-text-grey">DES — демонстраційний приклад симетричного шифрування</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
